@@ -367,12 +367,12 @@ h2.sec small{font-size:11.5px;color:var(--ink2);font-weight:600}
 .sw .bk b{font-size:8.5px;font-weight:500;line-height:12px}
 .sw .bleg{font-size:8px;font-weight:500;line-height:9.5px}
 .sw .bleg i{width:7px;height:7px}
-.fbk{position:absolute;right:16px;bottom:94px;z-index:9;display:flex;align-items:center;gap:8px;background:var(--navy);color:#fff;border-radius:24px;padding:11px 12px 11px 16px;font:700 13.5px var(--f-ui);text-decoration:none;box-shadow:0 8px 22px rgba(22,50,67,.28);opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .3s,transform .3s,bottom .25s}
+.fbk{position:absolute;right:16px;bottom:94px;z-index:9;display:flex;align-items:center;gap:6px;background:var(--navy);color:#fff;border-radius:20px;padding:6px 7px 6px 11px;font:700 12px var(--f-ui);text-decoration:none;box-shadow:0 8px 22px rgba(22,50,67,.28);opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .3s,transform .3s,bottom .25s}
 .fbk.show{opacity:1;transform:none;pointer-events:auto}
 .fbk.up{bottom:150px}.fbk.low{bottom:22px}
-.fbk .wv{display:inline-block;font-size:17px;line-height:1;transform-origin:70% 80%;animation:fbwave 2.4s ease-in-out infinite}
+.fbk .wv{display:inline-block;font-size:13px;line-height:1;transform-origin:70% 80%;animation:fbwave 2.4s ease-in-out infinite}
 @keyframes fbwave{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(16deg)}20%,40%{transform:rotate(-8deg)}}
-.fbk .fx{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.16);border:0;color:#fff;font:700 13px/1 var(--f-ui);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin-left:2px}
+.fbk .fx{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.16);border:0;color:#fff;font:700 11px/1 var(--f-ui);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin-left:1px}
 .fbk .fx:hover{background:rgba(255,255,255,.3)}
 .fbk[hidden]{display:none!important}
 </style>
@@ -428,7 +428,8 @@ const TEMPL={
  "Shortboard":{h:[1.0,2.0],p:[10,14],e:[300,1300],brk:"reef & point"},
  "Soft-top":{h:[0.3,0.9],p:[7,11],e:[50,250],brk:"beach break"}
 };
-const LEVEL_ADJ={Beginner:-0.35,Intermediate:0,Advanced:0.45};
+const LEVEL_ADJ={Beginner:-0.35,Improver:-0.18,Intermediate:0,Advanced:0.45,Expert:0.7};
+const LEVELS=["Beginner","Improver","Intermediate","Advanced","Expert"];
 const SPOTLIST=["Carcavelos","São Pedro do Estoril","Guincho","Parede","Ericeira","Costa da Caparica","Peniche","Cascais"];
 
 const st={
@@ -525,7 +526,7 @@ function renderOB(){
   if(s===1) return `<div class="ob">${obHeader(1)}
     <h1>About you</h1><p class="lead">Your body data helps us judge which waves and boards suit you.</p>
     <div class="field"><label for="f-name">Name <span class="star" aria-hidden="true">*</span></label><input id="f-name" data-u="name" value="${esc(u.name)}" autocomplete="off"></div>
-    <div class="field"><label for="f-age">Age <span class="star" aria-hidden="true">*</span></label><div class="unit"><input id="f-age" data-u="age" type="number" min="8" max="90" value="${u.age}"><span>years</span></div></div>
+    <div class="field"><label for="f-age">Age <span class="star" aria-hidden="true">*</span></label><div class="unit"><input id="f-age" data-u="age" type="number" min="8" max="90" value="${u.age}" style="padding-right:84px"><span>years old</span></div></div>
     <div class="field"><span class="lbl">Gender</span><div class="row-chips">${["Female","Male","Diverse","Prefer not to say"].map(g=>`<button class="chip ${u.gender===g?"on":""}" data-a="gender" data-v="${g}">${g}</button>`).join("")}</div></div>
     <div class="grid2"><div class="field"><label for="f-h">Height</label><div class="unit"><input id="f-h" data-u="height" type="number" value="${u.height}"><span>cm</span></div></div>
     <div class="field"><label for="f-w">Weight</label><div class="unit"><input id="f-w" data-u="weight" type="number" value="${u.weight}"><span>kg</span></div></div></div>
@@ -535,7 +536,7 @@ function renderOB(){
     <h1>Fitness and surf level</h1><p class="lead">Rate yourself once. After every session, the app learns your real level.</p>
     <div class="field"><span class="lbl">Fitness level <span class="star" aria-hidden="true">*</span></span><div class="seg">${[1,2,3,4,5].map(i=>`<button class="${u.fitness===i?"on":""}" data-a="fitness" data-v="${i}">${i}</button>`).join("")}</div><div class="seg-l"><span>Rarely active</span><span>Very fit</span></div></div>
     <div class="field"><span class="lbl">Surf experience <span class="star" aria-hidden="true">*</span></span><div class="lvl">
-      ${[["Beginner","Whitewater, first green waves"],["Intermediate","Green waves, turning, chest-high days"],["Advanced","Overhead waves, reefs and points"]].map(([l,d])=>`<button class="${u.level===l?"on":""}" data-a="level" data-v="${l}"><b>${l}</b><span>${d}</span></button>`).join("")}
+      ${[["Beginner","Whitewater, first lessons"],["Improver","First green waves, going left and right"],["Intermediate","Turning on green waves, chest-high days"],["Advanced","Head-high waves, reefs and points"],["Expert","Overhead and bigger, heavy reefs, barrels"]].map(([l,d])=>`<button class="${u.level===l?"on":""}" data-a="level" data-v="${l}"><b>${l}</b><span>${d}</span></button>`).join("")}
     </div></div>
     <div class="field"><span class="lbl">Stance</span><div class="row-chips">${[["Regular","left foot forward"],["Goofy","right foot forward"],["Not sure yet",""]].map(([g,d])=>`<button class="chip ${u.stance===g?"on":""}" data-a="stance" data-v="${g}">${g}${d?` <small style="opacity:.7;font-weight:600">· ${d}</small>`:""}</button>`).join("")}</div></div>
     <div class="field"><label for="f-since">Surfing since</label><select id="f-since" data-u="since"><option value="" ${u.since?"":"selected"}>Select year</option>${Array.from({length:17},(_,i)=>2026-i).map(y=>`<option ${y==u.since?"selected":""}>${y}</option>`).join("")}</select></div>
@@ -661,7 +662,7 @@ const RENTALS=[
  {name:"Guincho Pro Shop",spot:"guin",rating:4.7,n:61,boards:[["Mid-length","7'0\"",20,"Intermediate"],["Shortboard","5'10\"",22,"Advanced"]],wet:false},
  {name:"Cascais Beach Rentals",spot:"casc",rating:4.4,n:140,boards:[["Soft-top","8'0\"",12,"Beginner"],["Longboard","9'0\"",18,"Beginner–Intermediate"]],wet:true}
 ];
-function recBoard(){const l=st.user.level; return l==="Advanced"?"Shortboard":l==="Intermediate"?"Mid-length":l==="Beginner"?"Soft-top":"Longboard";}
+function recBoard(){const l=st.user.level; return (l==="Advanced"||l==="Expert")?"Shortboard":l==="Intermediate"?"Mid-length":l==="Improver"?"Longboard":l==="Beginner"?"Soft-top":"Longboard";}
 function renderRental(){
   const d=st.day, rec=recBoard();
   const list=RENTALS.map((r,i)=>({...r,i,f:fit(r.spot,d)})).sort((a,b)=>b.f-a.f);
@@ -680,7 +681,7 @@ function renderRental(){
  </div></div>`;
 }
 function schoolFit(sc,d){ if(!sc.spots) return {spot:sc.spot,f:fit(sc.spot,d,sc.off)}; let best=null; sc.spots.forEach(id=>{const f=fit(id,d,sc.off); if(!best||f>best.f) best={spot:id,f};}); return best; }
-function levelMatch(x){const l=st.user.level; if(!l) return null; return x.levels==="All levels"||x.levels.includes(l);}
+function levelMatch(x){const l=st.user.level==="Expert"?"Advanced":st.user.level; if(!l) return null; if(x.levels==="All levels"||x.levels.includes(l)) return true; const r=x.levels.split("–").map(v=>LEVELS.indexOf(v.trim())); const i=LEVELS.indexOf(l); return r.length===2&&r[0]>=0&&i>=r[0]&&i<=r[1];}
 function renderLessons(){
   if(st.lmode==="rental") return renderRental();
   const d=st.day, f=st.lfilter||"fit";
@@ -863,7 +864,7 @@ document.addEventListener("click",e=>{
     case "stance": st.user.stance=v; render(true); break;
     case "spot": if(st.spots[v]) delete st.spots[v]; else st.spots[v]="This year"; render(true); break;
     case "addboard": {
-      const len=nb.len.trim(); if(!len){toast("Enter at least the board length, e.g. 8'0\".");break;} if(!String(nb.vol).trim()){toast("Please enter the board volume in litres.");break;}
+      const len=nb.len.trim()||"–"; if(!String(nb.vol).trim()){toast("Please enter the board volume in litres.");break;}
       st.boards.push({type:nb.type,len,w:nb.w||"–",t:nb.t||"–",vol:nb.vol||"–"}); Object.assign(nb,{len:"",w:"",t:"",vol:""}); render(true); toast("Board added."); break; }
     case "delboard": st.boards.splice(+v,1); if(st.board>=st.boards.length) st.board=0; render(true); break;
     case "device": st.device=st.device===v?null:v; render(true); break;
@@ -925,7 +926,7 @@ document.addEventListener("change",e=>{
 document.getElementById("restartBtn").addEventListener("click",()=>{st.fitSeen=false;resetUser();st.logged=[];st.done=false;st.ob=0;st.rated=false;st.rateFit=null;st.rateStars=0;render();});
 render();
 
-/* Feedback button: appears after 5 s (or earlier at 80% scroll), bottom right */
+/* Feedback button: appears after 10 s, bottom right; reappears 7 s after closing */
 (function(){
   const fb=document.getElementById("fbk"),sc=document.getElementById("scroll");
   let shown=false,closed=false;
@@ -938,10 +939,10 @@ render();
     const max=sc.scrollHeight-sc.clientHeight;
     if(max>0&&(sc.scrollTop/max)>=0.8){shown=true;fb.classList.add("show");}
   }
-  sc.addEventListener("scroll",()=>{place();check();},{passive:true});
+  sc.addEventListener("scroll",place,{passive:true});
   document.getElementById("fbx").addEventListener("click",e=>{e.preventDefault();e.stopPropagation();fb.classList.remove("show");clearTimeout(fb._t);fb._t=setTimeout(()=>{place();fb.classList.add("show");},7000);});
   const _r=render; render=function(){const out=_r.apply(this,arguments);place();return out;};
-  setTimeout(()=>{if(!closed&&!shown){shown=true;place();fb.classList.add("show");}},5000);
+  setTimeout(()=>{if(!closed&&!shown){shown=true;place();fb.classList.add("show");}},10000);
   place();
 })();
 </script>
