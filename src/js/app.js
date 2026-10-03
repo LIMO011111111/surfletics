@@ -1,9 +1,9 @@
 /* ==========================================================================
    Surfletics – app shell: rendering, navigation, sheets, toasts, events.
    ========================================================================== */
-import { SPOTS, SCHOOLS, RENTALS, EXAMPLE, REASONS } from "./data.js";
+import { SPOTS, SCHOOLS, RENTALS, EXAMPLE, REASONS, BOARD_TYPES } from "./data.js";
 import { st, tmp, load, save, resetState, uid, emptyBoard } from "./state.js";
-import { DAYS, dayDate, dayName, toMin } from "./dates.js";
+import { DAYS, dayDate, dayName, toMin, isoOf, refreshDays } from "./dates.js";
 import { fit, fitHP, schoolFit, boardLabel, normaliseLength, currentBoard } from "./model.js";
 import { morph } from "./morph.js";
 import { icon } from "./icons.js";
@@ -19,7 +19,7 @@ const $ = (s, r = document) => r.querySelector(s);
 const view = $("#view"), scroller = $("#scroll"), tabbar = $("#tabbar"), screenEl = $("#screen");
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const haptic = () => { try { navigator.vibrate?.(8); } catch { /* not supported */ } };
-const isoAgo = (n) => dayDate(-n).toISOString().slice(0, 10);
+const isoAgo = (n) => isoOf(dayDate(-n));
 
 /* ---------- rendering ---------- */
 
@@ -118,6 +118,7 @@ export function closeSheet() {
   tmp.sheet = null; tmp.booked = null; tmp.bookRent = false; tmp.errors = {};
   sheetEl.classList.remove("open");
   sheetEl.classList.add("closing");
+  sheetPanel.style.transform = ""; // slide out from where a drag left it
   for (const el of [$("#scroll"), tabbar, $("#fab"), $("#fbk")]) el.inert = false;
   closeT = setTimeout(() => { sheetEl.hidden = true; sheetEl.classList.remove("closing"); sheetPanel.style.transform = ""; }, reduceMotion.matches ? 0 : 260);
   const back = lastFocus && lastFocus !== document.body && document.contains(lastFocus) ? lastFocus : view.querySelector("h1");
@@ -189,6 +190,9 @@ function addBoard() {
   const vol = parseFloat(String(nb.vol).replace(",", "."));
   if (!vol) e.vol = "Enter the volume in litres.";
   else if (vol < 15 || vol > 120) e.vol = "Between 15 and 120 L.";
+  const num = (v) => parseFloat(String(v).replace(",", "."));
+  if (nb.w.trim() && !(num(nb.w) >= 14 && num(nb.w) <= 32)) e.w = "Width in inches, between 14 and 32.";
+  if (nb.t.trim() && !(num(nb.t) >= 1.5 && num(nb.t) <= 5)) e.t = "Thickness in inches, between 1.5 and 5.";
   if (!check(e)) return;
   st.boards.push({ type: nb.type, len, w: nb.w.trim(), t: nb.t.trim(), vol: Math.round(vol * 10) / 10 });
   st.board = st.boards.length - 1;
@@ -211,18 +215,20 @@ function loadExample() {
   });
   const mare = SCHOOLS[0];
   st.bookings = [
-    { id: uid(), kind: "lesson", ref: mare.id, name: mare.name, spot: mare.spot, off: mare.off, iso: isoAgo(2), time: mare.time, price: mare.price, extra: "Board & wetsuit included", status: "up", h: 1.0, p: 10 },
-    { id: uid(), kind: "lesson", ref: "lsc", name: SCHOOLS[3].name, spot: schoolFit(SCHOOLS[3], 1).spot, off: 0, iso: DAYS[1].iso, time: SCHOOLS[3].time, price: SCHOOLS[3].price, extra: "Board & wetsuit included", status: "up" },
+    { id: uid(), kind: "lesson", ref: mare.id, name: mare.name, spot: mare.spot, off: mare.off, iso: isoAgo(2), time: mare.time, price: mare.price, extra: "Board & wetsuit included", ride: SCHOOL_BOARD, status: "up", h: 1.0, p: 10 },
+    { id: uid(), kind: "lesson", ref: "lsc", name: SCHOOLS[3].name, spot: schoolFit(SCHOOLS[3], 1).spot, off: 0, iso: DAYS[1].iso, time: SCHOOLS[3].time, price: SCHOOLS[3].price, extra: "Board & wetsuit included", ride: SCHOOL_BOARD, status: "up" },
   ];
 }
 
+/** A rating nudges your sweet spot (on every board – it is your level that moved). */
 function learnFrom(rating, type) {
-  const delta = rating === 0 ? 0.1 : rating === 2 ? -0.1 : 0;
-  if (!delta || !type) return 0;
-  st.learn[type] = Math.max(-0.5, Math.min(0.5, +((st.learn[type] || 0) + delta).toFixed(2)));
-  return delta;
+  const step = rating === 0 ? 0.1 : rating === 2 ? -0.1 : 0;
+  if (!step || !type) return 0;
+  const old = st.learn.all || 0;
+  st.learn.all = Math.max(-0.5, Math.min(0.5, +(old + step).toFixed(2)));
+  return +(st.learn.all - old).toFixed(2);
 }
-const learnedMsg = (delta, type) => delta ? `Sweet spot for your ${type.toLowerCase()} moved ${delta > 0 ? "up" : "down"} ${Math.abs(delta).toFixed(1)} m.` : "Your sweet spot is confirmed.";
+const learnedMsg = (delta, type, rating) => delta ? `Your sweet spot moved ${delta > 0 ? "up" : "down"} ${Math.abs(delta).toFixed(1)} m.` : rating === 1 ? "Your sweet spot is confirmed." : "Your sweet spot is already at its limit.";
 
 function newRate(id) { return { id, fit: null, reasons: [], stars: 0 }; }
 
@@ -237,29 +243,34 @@ function saveLog() {
   const delta = learnFrom(L.fit, b?.type);
   closeSheet();
   render();
-  toast(`Session saved. ${b ? learnedMsg(delta, b.type) : "Add a board to learn a sweet spot per board."}`);
+  toast(`Session saved. ${b ? learnedMsg(delta, b.type, L.fit) : "Add a board to learn a sweet spot per board."}`);
 }
 
 function saveRating(id) {
   const r = tmp.rate, b = st.bookings.find((x) => x.id === id);
   if (!b || !r || r.id !== id) return;
   if (r.fit === null) { toast("Pick how the conditions fit you first."); return; }
-  const board = b.boardIdx !== undefined ? st.boards[b.boardIdx] : currentBoard();
+  // the board actually ridden was stored with the booking (school board, rental or own board)
+  const board = b.ride !== undefined ? b.ride : currentBoard();
   const d = DAYS.findIndex((x) => x.iso === b.iso);
   const h = b.h ?? SPOTS[b.spot].h[Math.max(0, d)], p = b.p ?? SPOTS[b.spot].p[Math.max(0, d)];
-  st.sessions.push({ id: uid(), iso: b.iso > DAYS[0].iso ? DAYS[0].iso : b.iso, spot: b.spot, board: b.kind === "rental" ? b.extra.replace("Rental: ", "") : boardLabel(board), boardType: b.boardType || board?.type || "", h, p, rating: r.fit, reasons: r.reasons.slice(), stars: r.stars, score: fitHP(h, p, b.spot, b.off || 0, board), src: b.kind, waves: st.device ? 14 : 0 });
+  const label = board ? `${board.school ? "School " : ""}${boardLabel(board)}` : "own board";
+  st.sessions.push({ id: uid(), iso: b.iso > DAYS[0].iso ? DAYS[0].iso : b.iso, spot: b.spot, board: label, boardType: board?.type || "", h, p, rating: r.fit, reasons: r.reasons.slice(), stars: r.stars, score: fitHP(h, p, b.spot, b.off || 0, board || undefined), src: b.kind, waves: st.device ? 14 : 0 });
   b.status = "rated";
-  const delta = learnFrom(r.fit, b.boardType || board?.type);
+  const delta = learnFrom(r.fit, board?.type);
   tmp.rate = null;
   render();
-  toast(`Rating saved. ${learnedMsg(delta, b.boardType || board?.type || "board")}`);
+  toast(`Rating saved. ${board ? learnedMsg(delta, board.type, r.fit) : "Add a board to learn a sweet spot per board."}`);
 }
+
+const SCHOOL_BOARD = { type: "Soft-top", len: "8'0\"", school: true };
 
 function bookingFromSchool(i) {
   const sc = SCHOOLS[i], at = schoolFit(sc, st.day).spot, rent = !!tmp.bookRent && !sc.gear;
   const b = currentBoard();
+  const ride = sc.gear || rent ? SCHOOL_BOARD : b ? { type: b.type, len: b.len, w: b.w } : null;
   return { id: uid(), kind: "lesson", ref: sc.id, name: sc.name, spot: at, off: sc.off, iso: DAYS[st.day].iso, time: sc.time, price: sc.price + (rent ? 10 : 0),
-    extra: sc.gear ? "Board & wetsuit included" : rent ? "Board & wetsuit rented" : b ? `Own ${boardLabel(b)}` : "Own board", boardIdx: rent || sc.gear ? undefined : st.board, boardType: rent || sc.gear ? (b?.type || "Soft-top") : b?.type, status: "up",
+    extra: sc.gear ? "Board & wetsuit included" : rent ? "Board & wetsuit rented" : b ? `Own ${boardLabel(b)}` : "Own board", ride, status: "up",
     h: SPOTS[at].h[st.day], p: SPOTS[at].p[st.day] };
 }
 
@@ -341,8 +352,17 @@ const ACTIONS = {
   info: (v) => openSheet(v === "fitintro" ? "fitintro" : "info", v),
   fitintro: () => openSheet("fitintro"),
   about: () => openSheet("about"),
+  install: () => openSheet("install"),
+  async installnow() {
+    const p = tmp.installPrompt;
+    if (!p) return;
+    p.prompt();
+    const { outcome } = await p.userChoice.catch(() => ({}));
+    tmp.installPrompt = null; closeSheet();
+    if (outcome === "accepted") toast("Installed – find Surfletics on your home screen.");
+  },
   restartask: () => openSheet("restart"),
-  restart() { closeSheet(); resetState(); lastKey = null; render(); },
+  restart() { closeSheet(); resetState(); Object.assign(tmp, { errors: {}, rate: null, log: null, scrub: null }); lastKey = null; render(); },
   book: (v) => { tmp.bookRent = false; tmp.booked = null; openSheet("book", +v); },
   rent: (v) => { tmp.booked = null; openSheet("rent", v); },
   confirmbook(v) {
@@ -352,7 +372,7 @@ const ACTIONS = {
   },
   confirmrent(v) {
     const [i, j] = v.split("|").map(Number), r = RENTALS[i], bd = r.boards[j];
-    const b = { id: uid(), kind: "rental", ref: r.id, name: r.name, spot: r.spot, off: 0, iso: DAYS[st.day].iso, time: "09:00–13:00", price: bd[2], extra: `Rental: ${bd[0]} ${bd[1]}`, boardType: bd[0], status: "up", h: SPOTS[r.spot].h[st.day], p: SPOTS[r.spot].p[st.day] };
+    const b = { id: uid(), kind: "rental", ref: r.id, name: r.name, spot: r.spot, off: 0, iso: DAYS[st.day].iso, time: "09:00–13:00", price: bd[2], extra: `Rental: ${bd[0]} ${bd[1]}`, ride: { type: bd[0], len: bd[1] }, status: "up", h: SPOTS[r.spot].h[st.day], p: SPOTS[r.spot].p[st.day] };
     st.bookings.push(b); tmp.booked = b; haptic();
     render(); renderSheet(); sheetTitle.focus();
   },
@@ -455,6 +475,7 @@ function placeFeedback() {
   fbk.classList.toggle("above-tabs", st.done);
   // only on the main tab screens – never over sign-up or form footers
   fbk.classList.toggle("off", !st.done || !!st.sub);
+  fbk.classList.toggle("above-fab", !$("#fab").hidden && screenEl.clientWidth < 360);
 }
 setTimeout(() => { if (!st.fbDismissed) fbk.hidden = false; requestAnimationFrame(() => fbk.classList.add("show")); }, 25000);
 $("#fbx").addEventListener("click", () => { fbk.classList.remove("show"); st.fbDismissed = true; save(); setTimeout(() => (fbk.hidden = true), 300); });
@@ -469,11 +490,18 @@ async function setupAside() {
     qrBox.innerHTML = qrSvg(url, { size: 112, margin: 2 });
   } catch { qrBox.closest(".qrwrap").hidden = true; }
 }
-$("#restartBtn")?.addEventListener("click", () => { if (tmp.sheet) closeSheet(); resetState(); lastKey = null; render(); });
+$("#restartBtn")?.addEventListener("click", () => { if (tmp.sheet) closeSheet(); ACTIONS.restart(); });
 
 if ("serviceWorker" in navigator && /^https:/.test(location.protocol)) {
   addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 }
+
+addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); tmp.installPrompt = e; });
+
+/* the app may stay open across midnight (installed on a home screen) */
+const dayCheck = () => { if (refreshDays()) { tmp.scrub = null; render(); } };
+document.addEventListener("visibilitychange", () => { if (!document.hidden) dayCheck(); });
+setInterval(dayCheck, 60000);
 
 /* ---------- boot ---------- */
 load();

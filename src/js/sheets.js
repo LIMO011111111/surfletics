@@ -95,6 +95,19 @@ export const SHEETS = {
     body: `<p class="sheetsub">This clears the profile, boards, bookings and ratings on this device, and opens the sign-up again.</p>${btnRow(`<button type="button" class="btn danger" data-a="restart">Clear and start over</button>`, closeBtn("Keep my data"))}`,
   }),
 
+  install: () => {
+    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const can = !!tmp.installPrompt;
+    return {
+      title: "Install Surfletics",
+      body: `<p class="sheetsub">Use the prototype like a real app: full screen, its own icon, and it works offline.</p>
+        ${can ? "" : `<ol class="fisrc">${ios
+          ? `<li><b>Tap the Share button</b><span>in Safari’s toolbar</span></li><li><b>Choose “Add to Home Screen”</b><span>scroll down in the share sheet if you don’t see it</span></li><li><b>Open Surfletics from your home screen</b><span>your profile comes along</span></li>`
+          : `<li><b>Open the browser menu</b><span>⋮ in Chrome, or the share menu</span></li><li><b>Choose “Install app” or “Add to Home screen”</b><span>the wording depends on your browser</span></li><li><b>Open Surfletics from your home screen</b><span>your profile comes along</span></li>`}</ol>`}
+        ${btnRow(can ? `<button type="button" class="btn" data-a="installnow">${icon("phone", 18)}Install now</button>` : "", closeBtn(can ? "Not now" : "Got it", can ? "sec" : ""))}`,
+    };
+  },
+
   about: () => ({
     title: "About this prototype",
     body: `<div class="explain"><p>Surfletics is a clickable prototype. Everything you enter stays in this browser.</p>

@@ -80,6 +80,7 @@ export function renderProfile() {
     <li><button type="button" data-a="sub" data-v="edit">${icon("profile", 20)}<span>Personal details & level</span>${icon("chev", 18, "chev")}</button></li>
     <li><button type="button" data-a="sub" data-v="boards">${icon("board", 20)}<span>Boards</span><small>${st.boards.length}</small>${icon("chev", 18, "chev")}</button></li>
     <li><button type="button" data-a="sub" data-v="watch">${icon("watch", 20)}<span>Watch</span><small>${esc(st.device || "Not connected")}</small>${icon("chev", 18, "chev")}</button></li>
+    ${matchMedia("(display-mode: standalone)").matches ? "" : `<li><button type="button" data-a="install">${icon("phone", 20)}<span>Install as an app</span>${icon("chev", 18, "chev")}</button></li>`}
     <li><a href="${FEEDBACK_URL}" target="_blank" rel="noopener">${icon("chat", 20)}<span>Send feedback on the prototype</span>${icon("external", 18, "chev")}</a></li>
     <li><button type="button" data-a="about">${icon("info", 20)}<span>About this prototype</span>${icon("chev", 18, "chev")}</button></li>
     <li><button type="button" class="danger" data-a="restartask">${icon("refresh", 20)}<span>Start over</span></button></li>
@@ -92,7 +93,7 @@ export function renderProfile() {
 function renderSub() {
   const title = { edit: "Edit profile", boards: "Your boards", watch: "Watch" }[st.sub];
   const body = {
-    edit: () => `<form class="ob-body" data-form="ob" novalidate>${aboutFields()}</form>${levelFields()}<h2 class="sectitle">Spots you know</h2>${spotFields()}`,
+    edit: () => `<form class="ob-body" data-form="ob" novalidate>${aboutFields()}<button type="submit" class="sr" tabindex="-1" aria-hidden="true">Continue</button></form>${levelFields()}<h2 class="sectitle">Spots you know</h2>${spotFields()}`,
     boards: () => `${boardList()}${boardForm()}`,
     watch: () => `<p class="lead">A watch counts waves and paddle time, so your ratings get an objective check.</p>${watchFields()}`,
   }[st.sub]();

@@ -61,7 +61,7 @@ export function boardIcon(b, h = 64) {
     Shortboard: { hw: 19, tn: 0.45, pn: 0.7, ts: 0.52, tw: 0.5 },
     "Soft-top": { hw: 23, tn: 0.2, pn: 0.45, ts: 0.72, tw: 0.7 },
   }[b.type] || { hw: 21, tn: 0.3, pn: 0.58, ts: 0.55, tw: 0.22 };
-  const Wd = parseFloat(String(b.w).replace(/[^0-9.]/g, "")) || P.hw;
+  const Wd = Math.min(32, Math.max(14, parseFloat(String(b.w).replace(/[^0-9.]/g, "")) || P.hw));
   const k = (h - 2) / 122;
   const L = Math.round(inch * k), hw = (Wd * k) / 2 * 1.7;
   const W = Math.ceil(hw * 2 + 2), c = W / 2, N = 36;
@@ -86,7 +86,7 @@ export function mapSvg(pins, { interactive = true, caption = "Map of the Cascais
     const attrs = interactive ? `role="button" tabindex="0" data-a="pin" data-v="${id}" aria-label="${esc(s.name)}, fit ${v}, ${clsLabel(v).toLowerCase()}"` : `aria-hidden="true"`;
     return `<g class="pin p-${cls(v)}" ${attrs}><circle class="pinhit" cx="${s.x}" cy="${s.y - 20}" r="25"/><path class="pinbody" d="${d}"/><text class="pinnum" x="${s.x}" y="${s.y - 18}">${v}</text><text class="pinlbl" x="${lx}" y="${ly}" text-anchor="${anchor}">${esc(s.short)}</text></g>`;
   }).join("");
-  return `<svg class="mapsvg" viewBox="0 236 386 196" preserveAspectRatio="xMidYMid slice" role="group" aria-label="${caption}">
+  return `<svg class="mapsvg" viewBox="0 236 386 196" preserveAspectRatio="xMidYMid meet" role="group" aria-label="${caption}">
     <defs><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--map-sea1)"/><stop offset="1" stop-color="var(--map-sea2)"/></linearGradient></defs>
     <rect x="-20" y="150" width="440" height="320" fill="url(#sea)"/>
     <path class="bathy" d="M-20,215 C10,230 14,270 22,300 C30,340 40,388 80,410 C140,425 220,415 300,412 C340,410 380,412 410,414"/>
@@ -101,7 +101,8 @@ export function mapSvg(pins, { interactive = true, caption = "Map of the Cascais
 
 /** Status of a booking date relative to the forecast window. */
 export const dayIndexOf = (iso) => {
-  const t = new Date(iso + "T12:00:00");
+  const [y, m, d] = iso.split("-").map(Number);
+  const t = new Date(y, m - 1, d, 12);
   const today = new Date(); today.setHours(12, 0, 0, 0);
   return Math.round((t - today) / 86400000);
 };

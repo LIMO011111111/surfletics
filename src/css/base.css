@@ -93,7 +93,7 @@ a { color: var(--ocean); }
 #view { min-height: 100%; display: flex; flex-direction: column; }
 
 /* ---------- real phones & installed app: full bleed, real safe areas ---------- */
-@media (max-width: 520px), (display-mode: standalone) {
+@media (max-width: 520px), (display-mode: standalone) and (max-width: 900px) {
   body { background: var(--app); }
   .stage { padding: 0; display: block; }
   .aside { display: none !important; }
@@ -130,7 +130,7 @@ h3 { font: 700 16px/1.3 var(--f-ui); }
   transition: transform .12s var(--ease), background-color .2s, box-shadow .2s;
 }
 .btn:active { transform: scale(.97); }
-.btn[aria-disabled="true"] { background: #B7C6CC; color: #fff; }
+.btn[aria-disabled="true"] { background: #DCE5E9; color: #3F5862; }
 .btn.sec { background: var(--surface); color: var(--ocean); box-shadow: inset 0 0 0 1.5px var(--line); }
 .btn.tonal { background: var(--cyan-soft); color: var(--ocean); }
 .btn.cyan { background: var(--cyan); color: var(--navy); }
@@ -201,7 +201,7 @@ fieldset.field > legend { margin-bottom: 8px; }
   width: 100%; min-height: 50px; padding: 0 14px; border-radius: 14px; border: 1.5px solid var(--line);
   background: var(--surface); font: 600 16px var(--f-ui); color: var(--ink); transition: border-color .15s, box-shadow .15s;
 }
-.field input::placeholder { color: #8FA3AA; font-weight: 500; }
+.field input::placeholder { color: #6E848C; font-weight: 500; }
 .field input:focus, .field select:focus { border-color: var(--ocean-2); outline: none; box-shadow: 0 0 0 4px var(--cyan-soft); }
 .field [aria-invalid="true"], .field input[aria-invalid="true"] { border-color: var(--bad); }
 .unit { position: relative; }

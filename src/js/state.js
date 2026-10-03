@@ -25,7 +25,7 @@ export function initialState() {
     /* things the user did */
     bookings: [],  // {id, kind, ref, name, spot, iso, time, price, extra, rent, status}
     sessions: [],  // {id, iso, spot, board, boardType, h, p, rating, reasons, stars, score, src, waves}
-    learn: {},     // sweet-spot shift per board type (m), learned from ratings
+    learn: {},     // { all: shift in m } learned from ratings
     statsBase: { sessions: 0, waves: 0 },
     /* prototype */
     mvp: false, notify: false, fbDismissed: false,

@@ -62,7 +62,7 @@ function patchNode(a, b) {
   if (tag === "TEXTAREA") { if (a !== document.activeElement) a.value = b.textContent; return; }
   patchChildren(a, b);
   if (tag === "SELECT") {
-    const sel = b.querySelector("option[selected]");
-    if (sel) a.value = sel.value || sel.textContent;
+    const i = Array.from(b.options).findIndex((o) => o.hasAttribute("selected"));
+    if (i >= 0 && a.selectedIndex !== i) a.selectedIndex = i;
   }
 }

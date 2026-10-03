@@ -35,9 +35,9 @@
   color: #fff;
 }
 .wtop { display: flex; align-items: flex-start; justify-content: space-between; }
-.welcome .wm { width: 210px; height: auto; }
+.welcome .wm { width: min(210px, 58vw); height: auto; }
 .proto { font: 700 11.5px var(--f-ui); letter-spacing: .06em; text-transform: uppercase; padding: 5px 9px; border-radius: 8px; background: rgba(255, 255, 255, .12); color: #CFE6EE; }
-.welcome h1 { font-size: 38px; line-height: 1.02; letter-spacing: -.025em; margin: 36px 0 26px; max-width: 11ch; }
+.welcome h1 { font-size: clamp(32px, 10vw, 38px); line-height: 1.02; letter-spacing: -.025em; margin: 36px 0 26px; max-width: 11ch; }
 .benefits { display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 1; }
 .benefits li { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: start; }
 .benefits .ic { width: 40px; height: 40px; padding: 9px; border-radius: 12px; background: rgba(137, 228, 246, .14); color: var(--cyan); }
@@ -47,7 +47,7 @@
 .wwaves .w1 { fill: var(--cyan); opacity: .16; animation: drift 9s ease-in-out infinite alternate; }
 .wwaves .w2 { fill: var(--sky); opacity: .32; animation: drift 7s ease-in-out infinite alternate-reverse; }
 @keyframes drift { to { transform: translateX(-14px); } }
-.wfoot { margin-top: auto; padding-top: 120px; display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 1; }
+.wfoot { margin-top: auto; padding-top: clamp(32px, 14vh, 120px); display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 1; }
 
 /* ---------- onboarding ---------- */
 .ob { display: flex; flex-direction: column; min-height: 100%; padding: var(--sat) 20px 0; background: var(--app); }

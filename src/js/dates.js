@@ -12,17 +12,21 @@ export function dayDate(offset) {
 }
 
 /** Forecast days: index 0 = today … 6. */
-export const DAYS = Array.from({ length: 7 }, (_, i) => {
-  const d = dayDate(i);
-  return {
-    i,
-    date: d,
-    wd: fmtWeekday.format(d),
-    wdLong: fmtLongWeekday.format(d),
-    dm: fmtDayMonth.format(d),
-    iso: d.toISOString().slice(0, 10),
-  };
-});
+/** Local calendar date as YYYY-MM-DD (never via UTC, which shifts the day in far-east time zones). */
+export const isoOf = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+/** Forecast days: index 0 = today … 6. Rebuilt in place when the date changes. */
+export const DAYS = [];
+export function refreshDays() {
+  const fresh = Array.from({ length: 7 }, (_, i) => {
+    const d = dayDate(i);
+    return { i, date: d, wd: fmtWeekday.format(d), wdLong: fmtLongWeekday.format(d), dm: fmtDayMonth.format(d), iso: isoOf(d) };
+  });
+  const changed = DAYS[0]?.iso !== fresh[0].iso;
+  DAYS.splice(0, DAYS.length, ...fresh);
+  return changed;
+}
+refreshDays();
 
 /** "Today", "Tomorrow", "Mon" */
 export const dayName = (i) => (i === 0 ? "Today" : i === 1 ? "Tomorrow" : DAYS[i].wd);

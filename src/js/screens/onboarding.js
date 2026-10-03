@@ -69,8 +69,8 @@ export function boardForm() {
     <div class="grid2">
       <div class="field"><label for="nb-len">Length${req}</label><input id="nb-len" data-nb="len" placeholder="e.g. 8'0&quot;" value="${esc(nb.len)}" autocomplete="off" ${inv("len")}>${err("len")}</div>
       <div class="field"><label for="nb-vol">Volume${req}</label><div class="unit"><input id="nb-vol" data-nb="vol" type="number" inputmode="decimal" min="15" max="120" placeholder="e.g. 60" value="${esc(nb.vol)}" ${inv("vol")}><span aria-hidden="true">L</span></div>${err("vol")}</div>
-      <div class="field"><label for="nb-w">Width</label><input id="nb-w" data-nb="w" placeholder="e.g. 22&quot;" value="${esc(nb.w)}" autocomplete="off"></div>
-      <div class="field"><label for="nb-t">Thickness</label><input id="nb-t" data-nb="t" placeholder="e.g. 3&quot;" value="${esc(nb.t)}" autocomplete="off"></div>
+      <div class="field"><label for="nb-w">Width</label><input id="nb-w" data-nb="w" placeholder="e.g. 22&quot;" value="${esc(nb.w)}" autocomplete="off" ${inv("w")}>${err("w")}</div>
+      <div class="field"><label for="nb-t">Thickness</label><input id="nb-t" data-nb="t" placeholder="e.g. 3&quot;" value="${esc(nb.t)}" autocomplete="off" ${inv("t")}>${err("t")}</div>
     </div>
     <button type="submit" class="btn tonal">${icon("plus", 18)}Add board</button>
   </form>`;
@@ -121,7 +121,7 @@ export function renderOnboarding() {
 
   if (s === 1) return `<section class="ob" data-screen="ob1">${header(1)}
     <h1 id="ob-title">About you</h1><p class="lead">So we can judge which waves and boards suit you.</p>
-    <form class="ob-body" data-form="ob" novalidate>${aboutFields()}</form>
+    <form class="ob-body" data-form="ob" novalidate>${aboutFields()}<button type="submit" class="sr" tabindex="-1" aria-hidden="true">Continue</button></form>
     ${foot("Continue")}</section>`;
 
   if (s === 2) return `<section class="ob" data-screen="ob2">${header(2)}

@@ -1,6 +1,12 @@
 {
   "name": "surfletics-tools",
   "private": true,
-  "scripts": { "build:single": "node tools/build-single.mjs" },
-  "devDependencies": { "esbuild": "^0.24.0" }
+  "scripts": {
+    "build:single": "node tools/build-single.mjs",
+    "test": "node tests/e2e.spec.mjs",
+    "start": "python3 -m http.server 8080"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
 }

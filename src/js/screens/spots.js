@@ -73,7 +73,7 @@ export function renderForecast() {
   const desc = v >= 85 ? "Clean sets in your sweet spot. Ideal for your level." : v >= 70 ? "Good for you, a bit outside your sweet spot." : v >= 50 ? "Borderline for your level and board. Consider a lesson." : "Too much or too little for you. Try another spot or day.";
   const maxh = Math.max(...s.h);
   const spotChips = `<div class="hscroll chips" role="group" aria-label="Spot">${Object.entries(SPOTS).map(([k, x]) => `<button type="button" class="chip ${k === id ? "on" : ""}" aria-pressed="${k === id}" data-a="fspot" data-v="${k}">${esc(x.short)}</button>`).join("")}</div>`;
-  const top = `<header class="subhead">${backBtn("spotsback", "All spots")}<h1>${esc(s.name)}</h1><span class="brkpill">${esc(s.brkLong)}</span></header>`;
+  const top = `<header class="subhead">${backBtn("spotsback", "All spots")}<h1>${esc(s.name)}</h1></header>`;
 
   if (st.ftab === "guide") return `<section class="screen-pad" data-screen="guide">${top}${spotChips}${guideHtml(id, d)}</section>`;
 
@@ -83,7 +83,7 @@ export function renderForecast() {
   ${spotChips}
   <article class="hero" aria-label="${dayFull(d)} at ${esc(s.name)}">
     <div class="hrow1">
-      <div><p class="hday">${dayFull(d)}</p>
+      <div><p class="hday">${dayFull(d)} · ${esc(s.brkLong)}</p>
         <p class="hbig">${s.h[d].toFixed(1)}<small> m</small></p>
         <p class="hsub">${s.p[d]} s period · ${fmtKJ(e)} kJ ${infoBtn("energy", "What is wave energy?")}</p></div>
       ${fitRing(v, 76)}
