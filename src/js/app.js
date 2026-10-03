@@ -93,6 +93,7 @@ let lastFocus = null, closeT;
 export function openSheet(name, arg) {
   clearTimeout(closeT);
   const wasOpen = !!tmp.sheet;
+  hideToast(); // a toast would sit on top of the sheet title
   tmp.sheet = { name, arg };
   tmp.errors = {};
   renderSheet();
@@ -484,7 +485,8 @@ async function setupAside() {
   const qrBox = $("#qr");
   if (!qrBox) return;
   const url = location.href.split("#")[0];
-  if (!/^https?:/.test(url) || /localhost|127\.0\.0\.1/.test(url)) { qrBox.closest(".qrwrap").hidden = true; return; }
+  let framed = true; try { framed = window.self !== window.top; } catch { /* cross-origin frame */ }
+  if (framed || !/^https?:/.test(url) || /localhost|127\.0\.0\.1/.test(url)) { qrBox.closest(".qrwrap").hidden = true; return; }
   try {
     const { qrSvg } = await import("../vendor/qrcode.js");
     qrBox.innerHTML = qrSvg(url, { size: 112, margin: 2 });

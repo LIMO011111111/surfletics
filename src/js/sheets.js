@@ -118,6 +118,9 @@ export const SHEETS = {
   }),
 };
 
+/** Embedded previews (iframes) block file downloads, so the calendar button is hidden there. */
+const framed = () => { try { return window.self !== window.top; } catch { return true; } };
+
 function successSheet() {
   const b = tmp.booked, d = DAYS.findIndex((x) => x.iso === b.iso);
   return {
@@ -125,7 +128,7 @@ function successSheet() {
     body: `<div class="success"><span class="tick" aria-hidden="true">${icon("check", 34)}</span>
       <p><b>${esc(b.name)}</b><br>${dayFull(Math.max(0, d))} · ${esc(b.time)} · ${esc(SPOTS[b.spot].short)}</p></div>
       <p class="policy">${icon("bell", 16)}We re-check the forecast every morning and tell you if a better day comes up.</p>
-      ${btnRow(`<button type="button" class="btn" data-a="viewbooking">View booking</button>`, `<button type="button" class="btn sec" data-a="ics" data-v="${b.id}">${icon("cal", 18)}Add to calendar</button>`)}`,
+      ${btnRow(`<button type="button" class="btn" data-a="viewbooking">View booking</button>`, framed() ? closeBtn("Done") : `<button type="button" class="btn sec" data-a="ics" data-v="${b.id}">${icon("cal", 18)}Add to calendar</button>`)}`,
   };
 }
 
