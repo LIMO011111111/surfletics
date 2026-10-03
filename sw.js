@@ -1,6 +1,6 @@
 /* Offline support: pre-cache the app shell, then network-first with a cache fallback.
    Bump VERSION whenever you deploy changes you want phones to pick up immediately. */
-const VERSION = "surfletics-v2.0.0";
+const VERSION = "surfletics-v2.1.0";
 const SHELL = [
   "./", "index.html", "manifest.webmanifest",
   "src/css/base.css", "src/css/components.css", "src/css/screens.css",

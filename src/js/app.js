@@ -2,7 +2,7 @@
    Surfletics – app shell: rendering, navigation, sheets, toasts, events.
    ========================================================================== */
 import { SPOTS, SCHOOLS, RENTALS, EXAMPLE, REASONS, BOARD_TYPES } from "./data.js";
-import { st, tmp, load, save, resetState, uid, emptyBoard } from "./state.js";
+import { st, tmp, load, save, resetState, uid, emptyBoard, initialState } from "./state.js";
 import { DAYS, dayDate, dayName, toMin, isoOf, refreshDays } from "./dates.js";
 import { fit, fitHP, schoolFit, boardLabel, normaliseLength, currentBoard } from "./model.js";
 import { morph } from "./morph.js";
@@ -177,7 +177,9 @@ function check(errors) {
   if (!first) return true;
   requestAnimationFrame(() => {
     const el = view.querySelector('[aria-invalid="true"] button, [aria-invalid="true"], .ferr');
-    (el?.closest("fieldset")?.querySelector("button") || el)?.focus();
+    const target = el?.closest("fieldset")?.querySelector("button") || el;
+    target?.focus({ preventScroll: true });
+    (el?.closest(".field, fieldset, .consent") || el)?.scrollIntoView({ block: "center", behavior: reduceMotion.matches ? "auto" : "smooth" });
   });
   return false;
 }
@@ -236,6 +238,7 @@ function newRate(id) { return { id, fit: null, reasons: [], stars: 0 }; }
 function saveLog() {
   const L = tmp.log;
   if (L.fit === null) { toast("Pick how the conditions fit you first."); return; }
+  if (!L.start || !L.end || isNaN(toMin(L.start)) || isNaN(toMin(L.end))) { tmp.errors = { logtime: "Enter a start and an end time." }; renderSheet(); $(L.start ? "#lg-end" : "#lg-start")?.focus(); return; }
   if (toMin(L.end) <= toMin(L.start)) { tmp.errors = { logtime: "The end time has to be after the start." }; renderSheet(); $("#lg-end")?.focus(); return; }
   const s = SPOTS[L.spot], b = st.boards[L.board] || null;
   const h = +(s.h[0] * (1 - 0.06 * L.ago)).toFixed(1), p = Math.max(6, s.p[0] - (L.ago > 1 ? 1 : 0));
@@ -322,6 +325,7 @@ const ACTIONS = {
 
   /* navigation */
   tab(v) {
+    if (st.sub === "edit" && !check({ ...validateAbout(), ...validateLevel() })) return;
     if (v === st.tab && v === "spots" && st.spotDetail) { st.spotDetail = null; render("back"); return; }
     if (v === st.tab && !st.sub) { scroller.scrollTo({ top: 0, behavior: reduceMotion.matches ? "auto" : "smooth" }); return; }
     st.tab = v; st.sub = null; if (v === "spots") st.spotDetail = null; render("tab");
@@ -345,7 +349,7 @@ const ACTIONS = {
   },
   boards() { st.tab = "profile"; st.sub = "boards"; render("fwd"); },
   pickboard: (v) => { st.board = +v; render(); },
-  mode(v) { st.mvp = v === "mvp"; render(); if (tmp.sheet) renderSheet(); toast(st.mvp ? "Showing phase 1: lessons and rental are “coming soon”." : "Showing the full version."); },
+  mode(v) { st.mvp = v === "mvp"; if (tmp.sheet && tmp.sheet.name !== "about") closeSheet(); render(); if (tmp.sheet) renderSheet(); toast(st.mvp ? "Showing phase 1: lessons and rental are “coming soon”." : "Showing the full version."); },
   notify() { st.notify = !st.notify; render(); toast(st.notify ? "Done – we’ll tell you when booking launches at your spots." : "Notifications turned off."); },
 
   /* sheets */
@@ -380,14 +384,14 @@ const ACTIONS = {
   viewbooking() { closeSheet(); st.tab = "bookings"; st.btab = "up"; render("tab"); },
   ics: (v) => downloadIcs(v),
   cancelbook: (v) => openSheet("cancel", v),
-  confirmcancel(v) { st.bookings = st.bookings.filter((b) => b.id !== v); closeSheet(); render(); toast("Booking cancelled. Refund on its way."); },
+  confirmcancel(v) { const b = st.bookings.find((x) => x.id === v); st.bookings = st.bookings.filter((x) => x.id !== v); closeSheet(); render(); toast(b?.kind === "rental" ? "Reservation cancelled." : "Booking cancelled. Refund on its way."); },
   movebook(v) {
     const [id, d] = v.split("|"), b = st.bookings.find((x) => x.id === id);
     if (!b) return;
     b.iso = DAYS[+d].iso; b.h = SPOTS[b.spot].h[+d]; b.p = SPOTS[b.spot].p[+d];
-    render(); toast(`Moved to ${dayName(+d).toLowerCase()} – fit ${fit(b.spot, +d, b.off || 0)}.`);
+    render(); toast(`Moved to ${+d <= 1 ? dayName(+d).toLowerCase() : DAYS[+d].wdLong} – fit ${fit(b.spot, +d, b.off || 0)}.`);
   },
-  markdone(v) { const b = st.bookings.find((x) => x.id === v); if (b) { b.status = "done"; st.btab = "past"; tmp.rate = newRate(v); render(); toast("It’s over – how did it go?"); } },
+  markdone(v) { const b = st.bookings.find((x) => x.id === v); if (b) { b.status = "done"; if (b.iso > DAYS[0].iso) b.iso = DAYS[0].iso; st.btab = "past"; tmp.rate = newRate(v); render(); toast("It’s over – how did it go?"); } },
 
   /* log a session */
   logopen() {
@@ -409,13 +413,18 @@ const toggle = (arr, v) => { const i = arr.indexOf(v); if (i < 0) arr.push(v); e
 
 /* ---------- events ---------- */
 
+/* A fast double-tap must not hit the NEW button that appeared under the finger
+   (next sign-up step, next board's trash icon, "View booking", the sheet backdrop):
+   the second tap of a double-tap (event.detail > 1) is ignored everywhere. */
 document.addEventListener("click", (e) => {
-  if (e.target === sheetEl) { closeSheet(); return; }
+  const repeat = e.detail > 1;
+  if (e.target === sheetEl) { if (!repeat && sheetEl.classList.contains("open")) closeSheet(); return; }
   const el = e.target.closest("[data-a]");
   if (!el || el.matches("input[type=radio], input[type=checkbox]")) return;
   const fn = ACTIONS[el.dataset.a];
   if (!fn) return;
   e.preventDefault();
+  if (repeat) return;
   fn(el.dataset.v, el);
 });
 
@@ -476,10 +485,11 @@ function placeFeedback() {
   fbk.classList.toggle("above-tabs", st.done);
   // only on the main tab screens – never over sign-up or form footers
   fbk.classList.toggle("off", !st.done || !!st.sub);
+  screenEl.classList.toggle("fbk-on", !fbk.hidden && fbk.classList.contains("show") && !fbk.classList.contains("off"));
   fbk.classList.toggle("above-fab", !$("#fab").hidden && screenEl.clientWidth < 360);
 }
-setTimeout(() => { if (!st.fbDismissed) fbk.hidden = false; requestAnimationFrame(() => fbk.classList.add("show")); }, 25000);
-$("#fbx").addEventListener("click", () => { fbk.classList.remove("show"); st.fbDismissed = true; save(); setTimeout(() => (fbk.hidden = true), 300); });
+setTimeout(() => { if (st.fbDismissed) return; fbk.hidden = false; requestAnimationFrame(() => { fbk.classList.add("show"); placeFeedback(); }); }, 25000);
+$("#fbx").addEventListener("click", () => { fbk.classList.remove("show"); st.fbDismissed = true; save(); placeFeedback(); setTimeout(() => (fbk.hidden = true), 300); });
 
 async function setupAside() {
   const qrBox = $("#qr");
@@ -506,9 +516,39 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) dayC
 setInterval(dayCheck, 60000);
 
 /* ---------- boot ---------- */
+
+/** Repair anything in saved state that the current code can't render (old versions, edits, corruption). */
+function sanitize() {
+  const isObj = (x) => x && typeof x === "object" && !Array.isArray(x);
+  const ISO = /^\d{4}-\d{2}-\d{2}$/;
+  const clampInt = (v, lo, hi, dflt) => (Number.isInteger(v) && v >= lo && v <= hi ? v : dflt);
+  const fresh = initialState();
+  for (const k of ["user", "spots", "learn", "statsBase", "nb"]) if (!isObj(st[k])) st[k] = fresh[k];
+  for (const k of ["boards", "bookings", "sessions"]) if (!Array.isArray(st[k])) st[k] = [];
+  st.boards = st.boards.filter((b) => isObj(b) && typeof b.type === "string");
+  st.bookings = st.bookings.filter((b) => isObj(b) && ISO.test(b.iso) && SPOTS[b.spot] && dayIndexOf(b.iso) <= 6);
+  st.sessions = st.sessions.filter((s) => isObj(s) && ISO.test(s.iso) && SPOTS[s.spot] && isFinite(s.h) && isFinite(s.p) && [0, 1, 2].includes(s.rating));
+  st.ob = clampInt(st.ob, 0, 5, 0);
+  st.day = clampInt(st.day, 0, 6, 0); st.fday = clampInt(st.fday, 0, 6, 0);
+  st.board = clampInt(st.board, 0, Math.max(0, st.boards.length - 1), 0);
+  if (!["spots", "lessons", "bookings", "profile"].includes(st.tab)) st.tab = "spots";
+  if (!["edit", "boards", "watch", null].includes(st.sub)) st.sub = null;
+  if (!SPOTS[st.fspot]) st.fspot = "carc";
+  if (st.spotDetail && !SPOTS[st.spotDetail]) st.spotDetail = null;
+  if (!["fc", "guide"].includes(st.ftab)) st.ftab = "fc";
+  if (!["lessons", "rental"].includes(st.lmode)) st.lmode = "lessons";
+  if (!["up", "past"].includes(st.btab)) st.btab = "up";
+}
+
 load();
-if (st.done && !st.sub) st.sub = null;
-render();
+sanitize();
+try {
+  render();
+} catch (err) {
+  // never leave a tester on a blank screen: start fresh instead
+  console.warn("Surfletics: saved state could not be shown, starting over.", err);
+  resetState(); lastKey = null; render();
+}
 setupAside();
 document.documentElement.classList.add("ready");
 

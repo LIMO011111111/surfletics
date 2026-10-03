@@ -11,7 +11,7 @@ const ranked = (d) => Object.keys(SPOTS).map((id) => ({ id, s: SPOTS[id], f: fit
 export function renderDiscover() {
   const d = st.day, list = ranked(d);
   const great = list.filter((x) => x.f >= 85).length, good = list.filter((x) => x.f >= 70).length;
-  const head = great ? `${plural(great, "great fit")} ${d === 0 ? "today" : d === 1 ? "tomorrow" : "on " + DAYS[d].wdLong}` : good ? `${plural(good, "good fit")} ${d === 0 ? "today" : d === 1 ? "tomorrow" : "on " + DAYS[d].wdLong}` : `No spot fits you ${d === 0 ? "today" : dayNameLong(d).toLowerCase()}`;
+  const head = great ? `${plural(great, "great fit")} ${d === 0 ? "today" : d === 1 ? "tomorrow" : "on " + DAYS[d].wdLong}` : good ? `${plural(good, "good fit")} ${d === 0 ? "today" : d === 1 ? "tomorrow" : "on " + DAYS[d].wdLong}` : `No spot fits you ${d === 0 ? "today" : d === 1 ? "tomorrow" : "on " + DAYS[d].wdLong}`;
   return `<section class="screen-pad" data-screen="discover">
   <header class="pagehead">
     <div><p class="eyebrow">Cascais coast · ${esc(st.user.level || "all levels")}</p><h1>Best spots for you</h1></div>
@@ -51,7 +51,7 @@ function curveChart(id, d) {
   return `<div class="curve" style="--best-l:${(X(w.from) / W * 100).toFixed(2)}%;--best-w:${((X(w.to) - X(w.from)) / W * 100).toFixed(2)}%;--scrub:${(X(scrubM) / W * 100).toFixed(2)}%">
     <div class="curvehead"><span><b>${toHHMM(scrubM)}</b> · fit ${sf} · ${tideWord}, ${windWord}</span>${infoBtn("curve", "How the day curve works")}</div>
     <div class="curvebox">
-      <div class="bestband" aria-hidden="true"></div>
+      ${w.peak >= 50 ? `<div class="bestband" aria-hidden="true"></div>` : ""}
       <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
         <defs><linearGradient id="cfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--cyan)" stop-opacity=".45"/><stop offset="1" stop-color="var(--cyan)" stop-opacity="0"/></linearGradient></defs>
         <path d="${tide}" class="ctide"/>
@@ -62,7 +62,7 @@ function curveChart(id, d) {
       <input class="scrub" type="range" min="${Math.ceil(x0 / 15) * 15}" max="${Math.floor(x1 / 15) * 15}" step="15" value="${scrubM}" data-scrub="${id}-${d}" aria-label="Time of day" aria-valuetext="${toHHMM(scrubM)}, fit ${sf}, ${tideWord}">
     </div>
     <div class="cticks" aria-hidden="true"><span style="left:0">${icon("sun", 12)}${toHHMM(rise)}</span>${ticks.map((m) => `<span style="left:${(X(m) / W * 100).toFixed(1)}%">${toHHMM(m)}</span>`).join("")}<span style="right:0;left:auto">${toHHMM(set)}</span></div>
-    <div class="clegend"><span class="lg-best"><i></i>Best ${w.label}</span><span aria-hidden="true"><i class="lg-fit"></i>Your fit</span><span aria-hidden="true"><i class="lg-tide"></i>Tide</span></div>
+    <div class="clegend">${w.peak >= 50 ? `<span class="lg-best"><i></i>Best ${w.label}</span>` : `<span class="lg-best">No good window this day</span>`}<span aria-hidden="true"><i class="lg-fit"></i>Your fit</span><span aria-hidden="true"><i class="lg-tide"></i>Tide</span></div>
   </div>`;
 }
 
@@ -70,7 +70,7 @@ export function renderForecast() {
   const id = st.fspot, s = SPOTS[id], d = st.fday, v = fit(id, d), e = energy(s.h[d], s.p[d]);
   const w = bestWindow(id, d), first = !st.spots[s.name];
   const tt = tideTimes(id, d);
-  const desc = v >= 85 ? "Clean sets in your sweet spot. Ideal for your level." : v >= 70 ? "Good for you, a bit outside your sweet spot." : v >= 50 ? "Borderline for your level and board. Consider a lesson." : "Too much or too little for you. Try another spot or day.";
+  const desc = v >= 85 ? "Clean sets in your sweet spot. Ideal for your level." : v >= 70 ? "Good for you, a bit outside your sweet spot." : v >= 50 ? "At the edge of what suits your level and board. Consider a lesson." : "Too much or too little for you. Try another spot or day.";
   const maxh = Math.max(...s.h);
   const spotChips = `<div class="hscroll chips" role="group" aria-label="Spot">${Object.entries(SPOTS).map(([k, x]) => `<button type="button" class="chip ${k === id ? "on" : ""}" aria-pressed="${k === id}" data-a="fspot" data-v="${k}">${esc(x.short)}</button>`).join("")}</div>`;
   const top = `<header class="subhead">${backBtn("spotsback", "All spots")}<h1>${esc(s.name)}</h1></header>`;

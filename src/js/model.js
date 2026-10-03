@@ -155,7 +155,7 @@ export function normaliseLength(v) {
   if (!v) return null;
   let m = v.match(/^(\d{1,2})\s*(?:['’ ]|ft)\s*(\d{1,2})?\s*(?:["”]|in)?$/i);
   if (m && +m[1] >= 4 && +m[1] <= 12 && (+m[2] || 0) < 12) return `${+m[1]}'${+(m[2] || 0)}"`;
-  m = v.match(/^(\d{1,2})(?:[.,](\d+))?$/);
+  m = v.match(/^(\d{1,3})(?:[.,](\d+))?$/);
   if (m) {
     const n = parseFloat(v.replace(",", "."));
     if (n >= 4 && n <= 12) { const ft = Math.floor(n), inch = Math.round((n - ft) * 12); return `${ft}'${inch}"`; }

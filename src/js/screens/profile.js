@@ -53,7 +53,7 @@ function sweetCard() {
 export function renderProfile() {
   if (st.sub) return renderSub();
   const u = st.user, S = stats(), best = bestUpcoming(0, 3);
-  const meta = [u.age ? `${u.age} y` : "", u.height ? `${u.height} cm` : "", u.weight ? `${u.weight} kg` : "", u.stance && u.stance !== "Not sure yet" ? `${u.stance} foot` : ""].filter(Boolean).join(" · ");
+  const meta = [u.age ? `${u.age}\u00a0y` : "", u.height ? `${u.height}\u00a0cm` : "", u.weight ? `${u.weight}\u00a0kg` : "", u.stance && u.stance !== "Not sure yet" ? `${u.stance}\u00a0foot` : ""].filter(Boolean).join(" · ");
   return `<section data-screen="profile">
   <header class="phero">
     <div class="prow"><span class="avatar" aria-hidden="true">${esc(initials(u.name))}</span>

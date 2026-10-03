@@ -59,7 +59,7 @@ export const SHEETS = {
     return {
       title: sc.name,
       body: `<p class="sheetsub">${dayFull(st.day)} · ${esc(sc.time)} · ${esc(s.name)}${sc.spots ? `<br><span class="flex">${icon("refresh", 14)}Picks the best of ${sc.spots.map((id) => SPOTS[id].short).join(", ")} on the day</span>` : ""}</p>
-      <div class="condrow big">${fitBadge(f)}<p><b class="t-${cls(f)}">Conditions: ${clsShort(f)}</b> for you on ${esc(boardLabel(currentBoard()))}<br><small>${s.h[st.day].toFixed(1)} m · ${s.p[st.day]} s · best ${bestWindow(b.spot, st.day).label}</small></p></div>
+      <div class="condrow big">${fitBadge(f)}<p><b class="t-${cls(f)}">Conditions: ${clsShort(f)}</b> for you${sc.gear ? "" : ` on ${esc(boardLabel(currentBoard()))}`}<br><small>${s.h[st.day].toFixed(1)} m · ${s.p[st.day]} s · best ${bestWindow(b.spot, st.day).label}</small></p></div>
       <p class="focus">${esc(sc.focus)} · ${esc(sc.levels)}</p>
       <fieldset class="bopts"><legend class="sr">Board</legend>
         ${sc.gear ? `<label><input type="radio" name="bopt" data-a="bookrent" value="0" ${!rent ? "checked" : ""}><span>Board &amp; wetsuit included</span><b>€${sc.price}</b></label>` : `<label><input type="radio" name="bopt" data-a="bookrent" value="0" ${!rent ? "checked" : ""}><span>Bring my own board</span><b>€${sc.price}</b></label><label><input type="radio" name="bopt" data-a="bookrent" value="1" ${rent ? "checked" : ""}><span>Rent board &amp; wetsuit</span><b>€${sc.price + 10}</b></label>`}
@@ -85,8 +85,8 @@ export const SHEETS = {
     const b = st.bookings.find((x) => x.id === id);
     if (!b) return { title: "Booking not found", body: btnRow(closeBtn("Close", "")) };
     return {
-      title: "Cancel this booking?",
-      body: `<p class="sheetsub">${esc(b.name)} · ${esc(b.time)}<br>You will get a full refund of €${b.price}.</p>${btnRow(`<button type="button" class="btn danger" data-a="confirmcancel" data-v="${id}">Cancel booking</button>`, closeBtn("Keep it"))}`,
+      title: b.kind === "rental" ? "Cancel this reservation?" : "Cancel this booking?",
+      body: `<p class="sheetsub">${esc(b.name)} · ${esc(b.time)}<br>${b.kind === "rental" ? "Nothing has been paid yet – you would pay at the shop." : `You will get a full refund of €${b.price}.`}</p>${btnRow(`<button type="button" class="btn danger" data-a="confirmcancel" data-v="${id}">${b.kind === "rental" ? "Cancel reservation" : "Cancel booking"}</button>`, closeBtn("Keep it"))}`,
     };
   },
 

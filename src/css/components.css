@@ -45,6 +45,7 @@
 .fbk.above-fab { bottom: calc(var(--tabbar-h) + var(--sab) + 84px); }
 .fbk.show { opacity: 1; transform: none; }
 .fbk.off { visibility: hidden; opacity: 0; }
+.screen.fbk-on .screen-pad { padding-bottom: 168px; }
 .fbk a { display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 4px 0 14px; color: #fff; text-decoration: none; font: 700 14px var(--f-ui); }
 .fbk button { width: 44px; height: 44px; display: grid; place-items: center; color: #CFE6EE; }
 

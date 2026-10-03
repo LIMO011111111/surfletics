@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.1 – bug-fix pass
+
+- Double-taps no longer act on the button that appears underneath (skipped sign-up steps, two boards deleted, the booking sheet closing, the success screen being skipped).
+- *Edit profile* can't be left through the tab bar with an empty name; the consent error scrolls into view on small phones.
+- Log session requires a start and end time; rental cancellations no longer promise a refund.
+- Switching to phase 1 (MVP) closes an open booking sheet, so nothing can be booked in that mode.
+- Bookings keep the conditions they were booked with; "move to a better day" never suggests a slot that has already started.
+- Long names wrap in the profile header; "cm"/"kg" no longer break onto a new line; the "fit" label in sheet badges is readable again.
+- Bad days say "No good window this day" instead of showing a best window; copy fixes ("on Tuesday", no repeated "Borderline").
+- Board lengths in inches up to 144 ("100" → 8'4").
+- Saved data that is damaged or from an older version is repaired on start instead of leaving a blank screen.
+- The feedback button no longer covers buttons at the bottom of a screen.
+
 ## v2 – rebuild of the click dummy
 
 The original single-file prototype (`legacy/v1-click-dummy.html`) had a strong concept – the fit score, sweet spot per board and spot guides all stay. v2 rebuilds the structure around it and fixes what got in the way of testing it with real people.

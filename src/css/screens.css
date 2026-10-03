@@ -195,7 +195,7 @@
 .condrow p { font-size: 14px; line-height: 1.4; color: var(--ink-2); }
 .condrow p b { color: var(--ink); }
 .condrow.big { background: var(--app); padding: 12px; }
-.condrow small { color: var(--ink-2); font-size: 13.5px; }
+.condrow p small { color: var(--ink-2); font-size: 13.5px; }
 .focus { margin-top: 10px; font-size: 14.5px; line-height: 1.45; }
 .feats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; margin-top: 10px; font-size: 13.5px; color: var(--ink-2); }
 .feats li { display: flex; align-items: center; gap: 6px; line-height: 1.25; }
@@ -283,7 +283,7 @@ svg.star.on path { fill: #E6A23C; }
 .prow { display: flex; align-items: center; gap: 14px; }
 .avatar { width: 62px; height: 62px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--cyan); color: var(--navy); font: 700 23px var(--f-disp); box-shadow: 0 0 0 3px rgba(255, 255, 255, .25); }
 .pname { flex: 1; min-width: 0; }
-.pname h1 { font-size: 26px; }
+.pname h1 { font-size: 26px; overflow-wrap: anywhere; }
 .pname p { font-size: 13.5px; color: #CFE6EE; margin-top: 3px; }
 .lvlbadge { flex: none; align-self: flex-start; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 10px; background: rgba(255, 255, 255, .14); }
 .pstats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 18px 0 14px; }

@@ -1,8 +1,8 @@
 /* Bookings tab: upcoming lessons/rentals, ratings and session history. */
 import { SPOTS, FIT_OPTS, REASONS } from "../data.js";
 import { st, tmp } from "../state.js";
-import { DAYS, dayFull, dayName, pastLabel } from "../dates.js";
-import { fit, cls, clsLabel, energy, fmtKJ } from "../model.js";
+import { DAYS, dayFull, dayName, pastLabel, toMin } from "../dates.js";
+import { fit, fitHP, cls, clsLabel, energy, fmtKJ } from "../model.js";
 import { icon, starIcon } from "../icons.js";
 import { esc, fitBadge, fitRing, seg, dayIndexOf, emptyState } from "../ui.js";
 
@@ -10,7 +10,8 @@ import { esc, fitBadge, fitRing, seg, dayIndexOf, emptyState } from "../ui.js";
 export function bookingFit(b) {
   const d = dayIndexOf(b.iso);
   if (d < 0 || d > 6) return null;
-  return fit(b.spot, d, b.off || 0);
+  // conditions are stored with the booking, so the score stays stable when the date rolls over
+  return b.h != null && b.p != null ? fitHP(b.h, b.p, b.spot, b.off || 0) : fit(b.spot, d, b.off || 0);
 }
 export const upcoming = () => st.bookings.filter((b) => b.status === "up" && dayIndexOf(b.iso) >= 0).sort((a, b) => a.iso.localeCompare(b.iso));
 export const toRate = () => st.bookings.filter((b) => (b.status === "up" && dayIndexOf(b.iso) < 0) || b.status === "done").sort((a, b) => b.iso.localeCompare(a.iso));
@@ -18,7 +19,9 @@ export const toRate = () => st.bookings.filter((b) => (b.status === "up" && dayI
 /** A better day at the same spot within the forecast window, if any. */
 function betterDay(b, cur) {
   let best = null;
+  const now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes();
   for (let d = 0; d < 7; d++) {
+    if (d === 0 && toMin(String(b.time).slice(0, 5)) <= nowMin + 60) continue; // too late to move to today
     const f = fit(b.spot, d, b.off || 0);
     if (f >= cur + 10 && (!best || f > best.f)) best = { d, f };
   }
