@@ -120,7 +120,8 @@ export function closeSheet() {
   sheetEl.classList.add("closing");
   for (const el of [$("#scroll"), tabbar, $("#fab"), $("#fbk")]) el.inert = false;
   closeT = setTimeout(() => { sheetEl.hidden = true; sheetEl.classList.remove("closing"); sheetPanel.style.transform = ""; }, reduceMotion.matches ? 0 : 260);
-  if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+  const back = lastFocus && lastFocus !== document.body && document.contains(lastFocus) ? lastFocus : view.querySelector("h1");
+  if (back) { if (back.tagName === "H1") back.setAttribute("tabindex", "-1"); back.focus({ preventScroll: true }); }
 }
 
 // drag the handle down to dismiss

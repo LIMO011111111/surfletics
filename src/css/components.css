@@ -150,6 +150,7 @@
 .mapsvg .you { fill: #2B7DE9; stroke: #fff; stroke-width: 3; }
 .mapsvg .ocean { font: 600 9px var(--f-ui); letter-spacing: 3px; fill: #4F8B9B; }
 .pin { cursor: pointer; outline: none; }
+.pin .pinhit { fill: transparent; }
 .pin .pinbody { stroke: #fff; stroke-width: 2.5; filter: drop-shadow(0 2px 3px rgba(22, 50, 67, .3)); transition: transform .15s var(--ease); transform-box: fill-box; transform-origin: 50% 100%; }
 .pin.p-great .pinbody { fill: var(--great); } .pin.p-good .pinbody { fill: var(--good); } .pin.p-border .pinbody { fill: var(--border); } .pin.p-bad .pinbody { fill: var(--bad); }
 .pin .pinnum { font: 800 12.5px var(--f-ui); text-anchor: middle; fill: #fff; pointer-events: none; }

@@ -89,6 +89,7 @@ export function renderBookings() {
   return `<section class="screen-pad" data-screen="bookings">
     <header class="pagehead"><div><p class="eyebrow">${DAYS[0].wdLong}, ${DAYS[0].dm}</p><h1>Bookings</h1></div><img class="appglyph" src="assets/img/icon.svg" width="36" height="36" alt=""></header>
     ${seg([["up", "Upcoming", !st.mvp && up.length ? up.length : ""], ["past", "Past & ratings", !st.mvp && rate.length ? `${rate.length} to rate` : ""]], tab, "btab", "Bookings")}
+    <h2 class="sr">${tab === "past" ? "Past sessions and ratings" : "Upcoming bookings"}</h2>
     <div class="stack">${body}</div>
   </section>`;
 }

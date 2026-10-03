@@ -1,0 +1,6 @@
+{
+  "name": "surfletics-tools",
+  "private": true,
+  "scripts": { "build:single": "node tools/build-single.mjs" },
+  "devDependencies": { "esbuild": "^0.24.0" }
+}

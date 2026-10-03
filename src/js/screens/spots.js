@@ -47,22 +47,22 @@ function curveChart(id, d) {
   const tideWord = lvl < -0.6 ? "low tide" : lvl > 0.6 ? "high tide" : (tideLevel(id, d, scrubM + 30) > lvl ? "rising tide" : "falling tide");
   const windWord = scrubM > 840 && SPOTS[id].windBuild > 0.6 ? "wind picking up" : scrubM > 870 ? "breeze" : "light wind";
   const ticks = [];
-  for (let m = Math.ceil(x0 / 180) * 180; m < x1; m += 180) if (m - x0 > 70 && x1 - m > 70) ticks.push(m);
+  for (let m = Math.ceil(x0 / 180) * 180; m < x1; m += 180) if (m - x0 > 110 && x1 - m > 110) ticks.push(m);
   return `<div class="curve" style="--best-l:${(X(w.from) / W * 100).toFixed(2)}%;--best-w:${((X(w.to) - X(w.from)) / W * 100).toFixed(2)}%;--scrub:${(X(scrubM) / W * 100).toFixed(2)}%">
     <div class="curvehead"><span><b>${toHHMM(scrubM)}</b> · fit ${sf} · ${tideWord}, ${windWord}</span>${infoBtn("curve", "How the day curve works")}</div>
     <div class="curvebox">
-      <div class="bestband" aria-hidden="true"><span>Best ${w.label}</span></div>
+      <div class="bestband" aria-hidden="true"></div>
       <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
         <defs><linearGradient id="cfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--cyan)" stop-opacity=".45"/><stop offset="1" stop-color="var(--cyan)" stop-opacity="0"/></linearGradient></defs>
         <path d="${tide}" class="ctide"/>
         <path d="${area}" fill="url(#cfill)"/>
-        <path d="${line}" class="cline"/>
+        <path d="${line}" class="cline" pathLength="1"/>
       </svg>
       <span class="scrubline" aria-hidden="true"><i></i></span>
       <input class="scrub" type="range" min="${Math.ceil(x0 / 15) * 15}" max="${Math.floor(x1 / 15) * 15}" step="15" value="${scrubM}" data-scrub="${id}-${d}" aria-label="Time of day" aria-valuetext="${toHHMM(scrubM)}, fit ${sf}, ${tideWord}">
     </div>
     <div class="cticks" aria-hidden="true"><span style="left:0">${icon("sun", 12)}${toHHMM(rise)}</span>${ticks.map((m) => `<span style="left:${(X(m) / W * 100).toFixed(1)}%">${toHHMM(m)}</span>`).join("")}<span style="right:0;left:auto">${toHHMM(set)}</span></div>
-    <div class="clegend" aria-hidden="true"><span><i class="lg-fit"></i>Your fit</span><span><i class="lg-tide"></i>Tide</span></div>
+    <div class="clegend"><span class="lg-best"><i></i>Best ${w.label}</span><span aria-hidden="true"><i class="lg-fit"></i>Your fit</span><span aria-hidden="true"><i class="lg-tide"></i>Tide</span></div>
   </div>`;
 }
 

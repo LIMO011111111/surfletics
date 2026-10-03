@@ -60,6 +60,7 @@ function renderRental() {
   return `<section class="screen-pad" data-screen="rental">${head()}
   ${st.mvp ? soon("Board rental") : ""}
   <div class="recbox">${icon("spark", 18)}<p>Recommended for ${esc((st.user.level || "your level").toLowerCase())}: <b>${rec}</b></p></div>
+  <div class="listhead"><h2>${plural(list.length, "shop")} near the spots</h2><span class="muted">Sorted by fit</span></div>
   <div class="cards ${st.mvp ? "preview" : ""}">${list.map((x) => `<article class="lcard" data-key="rent-${x.id}" aria-labelledby="rn-${x.id}">
     <header class="lc-head"><div><h3 id="rn-${x.id}">${esc(x.name)}</h3><p class="rmeta">${esc(SPOTS[x.spot].short)} · ${x.wet ? "wetsuits available" : "boards only"}</p></div>
       <p class="lc-rate" aria-label="Rated ${x.rating} out of 5 from ${x.n} reviews">${icon("star", 15)}<b>${x.rating}</b><small>${x.n}</small></p></header>

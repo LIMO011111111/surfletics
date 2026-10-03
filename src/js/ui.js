@@ -84,7 +84,7 @@ export function mapSvg(pins, { interactive = true, caption = "Map of the Cascais
     const lx = s.label === "left" ? s.x + r + 6 : s.x, ly = s.label === "left" ? s.y - 18 : s.y + 15;
     const anchor = s.label === "left" ? "start" : "middle";
     const attrs = interactive ? `role="button" tabindex="0" data-a="pin" data-v="${id}" aria-label="${esc(s.name)}, fit ${v}, ${clsLabel(v).toLowerCase()}"` : `aria-hidden="true"`;
-    return `<g class="pin p-${cls(v)}" ${attrs}><path class="pinbody" d="${d}"/><text class="pinnum" x="${s.x}" y="${s.y - 18}">${v}</text><text class="pinlbl" x="${lx}" y="${ly}" text-anchor="${anchor}">${esc(s.short)}</text></g>`;
+    return `<g class="pin p-${cls(v)}" ${attrs}><circle class="pinhit" cx="${s.x}" cy="${s.y - 20}" r="25"/><path class="pinbody" d="${d}"/><text class="pinnum" x="${s.x}" y="${s.y - 18}">${v}</text><text class="pinlbl" x="${lx}" y="${ly}" text-anchor="${anchor}">${esc(s.short)}</text></g>`;
   }).join("");
   return `<svg class="mapsvg" viewBox="0 236 386 196" preserveAspectRatio="xMidYMid slice" role="group" aria-label="${caption}">
     <defs><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--map-sea1)"/><stop offset="1" stop-color="var(--map-sea2)"/></linearGradient></defs>
