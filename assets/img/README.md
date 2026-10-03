@@ -1,0 +1,3 @@
+# Surfletics assets
+
+`wordmark.png` is the full logo for light backgrounds and `wordmark-white.png` the all-white version for dark backgrounds. `icon.svg` (also `favicon.svg`) is the vector app icon on a rounded navy square; `icon-glyph.svg` is the same artwork without the background (board with navy outline) for small use on light app headers. `icon-192.png` and `icon-512.png` are the PWA manifest icons, `icon-maskable-512.png` is full-bleed with the artwork inside the central 80% safe zone, `apple-touch-icon.png` (180x180, opaque, square corners) is for iOS, and `favicon-32.png` is the fallback tab icon. `og-image.png` (1200x630) is the Open Graph / social share card. Fonts live in `../fonts/` (see `fonts.css`) and the QR helper in `../../src/vendor/qrcode.js`.
