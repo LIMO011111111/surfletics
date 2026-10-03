@@ -78,7 +78,7 @@
 /* ---------- fit badges ---------- */
 .fit { flex: none; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; font-variant-numeric: tabular-nums; line-height: 1; }
 .fit b { font-weight: 800; }
-.fit small { font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; opacity: .9; }
+.fit small { font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
 .fit-sm { width: 40px; height: 40px; border-radius: 12px; }
 .fit-sm b { font-size: 15px; }
 .fit-sm small { display: none; }
@@ -156,6 +156,6 @@
 .pin.p-great .pinbody { fill: var(--great); } .pin.p-good .pinbody { fill: var(--good); } .pin.p-border .pinbody { fill: var(--border); } .pin.p-bad .pinbody { fill: var(--bad); }
 .pin .pinnum { font: 800 12.5px var(--f-ui); text-anchor: middle; fill: #fff; pointer-events: none; }
 .pin.p-good .pinnum, .pin.p-border .pinnum { fill: var(--navy); }
-.pin .pinlbl { font: 700 10.5px var(--f-ui); fill: var(--navy); paint-order: stroke; stroke: rgba(255, 255, 255, .85); stroke-width: 3px; pointer-events: none; }
+.pin .pinlbl { font: 700 11.5px var(--f-ui); fill: var(--navy); paint-order: stroke; stroke: rgba(255, 255, 255, .85); stroke-width: 3px; pointer-events: none; }
 .pin:hover .pinbody, .pin:focus-visible .pinbody { transform: scale(1.12); }
 .pin:focus-visible .pinbody { stroke: var(--navy); stroke-width: 3; }
